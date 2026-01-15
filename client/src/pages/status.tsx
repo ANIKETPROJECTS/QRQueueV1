@@ -129,6 +129,7 @@ export default function Status() {
   }
 
   const isCancelled = entry.status === "cancelled";
+  const isCalled = entry.status === "called";
 
   return (
     <div 
@@ -175,7 +176,12 @@ export default function Status() {
             ease: [0.16, 1, 0.3, 1] 
           }}
         >
-          <Card className="bg-card/90 backdrop-blur-md border-white/20 shadow-2xl" data-testid="card-status">
+          <Card 
+            className={`backdrop-blur-md border-white/20 shadow-2xl transition-all duration-500 ${
+              isCalled ? "bg-green-600/90 ring-4 ring-green-400 ring-offset-4 ring-offset-transparent" : "bg-card/90"
+            }`} 
+            data-testid="card-status"
+          >
             <CardHeader className="text-center">
               {isCancelled ? (
                 <>
@@ -185,6 +191,24 @@ export default function Status() {
                   <CardTitle className="text-xl" data-testid="text-title-cancelled">Queue Cancelled</CardTitle>
                   <CardDescription data-testid="text-desc-cancelled">
                     Your spot has been removed from the queue
+                  </CardDescription>
+                </>
+              ) : isCalled ? (
+                <>
+                  <motion.div 
+                    className="w-24 h-24 mx-auto mb-4 rounded-full bg-white flex items-center justify-center shadow-xl" 
+                    data-testid="called-container"
+                    animate={{ 
+                      scale: [1, 1.15, 1],
+                      boxShadow: ["0px 0px 0px rgba(255,255,255,0.5)", "0px 0px 30px rgba(255,255,255,0.8)", "0px 0px 0px rgba(255,255,255,0.5)"]
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <CheckCircle className="w-14 h-14 text-green-600" data-testid="icon-called" />
+                  </motion.div>
+                  <CardTitle className="text-3xl text-white font-black mb-2 drop-shadow-lg" data-testid="text-title-called">Your Seat is Ready!</CardTitle>
+                  <CardDescription className="text-white text-lg font-medium drop-shadow-md" data-testid="text-desc-called">
+                    Please head to the counter now. We're waiting for you!
                   </CardDescription>
                 </>
               ) : (
@@ -204,29 +228,36 @@ export default function Status() {
               )}
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-muted/50 rounded-lg p-4 space-y-3" data-testid="info-container">
+              <div className={`rounded-lg p-4 space-y-3 transition-colors ${
+                isCalled ? "bg-white/30" : "bg-muted/50"
+              }`} data-testid="info-container">
                 <div className="flex items-center gap-3" data-testid="info-party-size">
                   <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
-                    <Users className="w-4 h-4 text-[#8B4513]" />
+                    <Users className={`w-4 h-4 ${isCalled ? "text-green-600" : "text-[#8B4513]"}`} />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Party Size</p>
-                    <p className="font-medium" data-testid="text-party-size">
+                    <p className={`text-sm ${isCalled ? "text-white/90" : "text-muted-foreground"}`}>Party Size</p>
+                    <p className={`font-bold ${isCalled ? "text-white text-lg" : ""}`} data-testid="text-party-size">
                       {entry.numberOfPeople} {entry.numberOfPeople === 1 ? "person" : "people"}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3" data-testid="info-status">
                   <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-[#8B4513]" />
+                    <Clock className={`w-4 h-4 ${isCalled ? "text-green-600" : "text-[#8B4513]"}`} />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <p className="font-medium capitalize flex items-center gap-2" data-testid="text-status">
+                    <p className={`text-sm ${isCalled ? "text-white/90" : "text-muted-foreground"}`}>Status</p>
+                    <p className={`font-bold capitalize flex items-center gap-2 ${isCalled ? "text-white text-lg" : ""}`} data-testid="text-status">
                       {isCancelled ? (
                         <>
                           <span className="w-2 h-2 rounded-full bg-destructive" data-testid="status-indicator-cancelled" />
                           Cancelled
+                        </>
+                      ) : isCalled ? (
+                        <>
+                          <span className="w-3 h-3 rounded-full bg-white animate-ping" data-testid="status-indicator-called" />
+                          Now Serving!
                         </>
                       ) : (
                         <>
@@ -237,22 +268,9 @@ export default function Status() {
                     </p>
                   </div>
                 </div>
-                {!isCancelled && position && (
-                  <div className="flex items-center gap-3" data-testid="info-ahead">
-                    <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-[#8B4513]" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">People Ahead</p>
-                      <p className="font-medium" data-testid="text-ahead">
-                        {position.position - 1} {position.position - 1 === 1 ? "person" : "people"}
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {!isCancelled ? (
+              {!isCancelled && !isCalled ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
@@ -286,6 +304,12 @@ export default function Status() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+              ) : isCalled ? (
+                <div className="pt-2">
+                  <p className="text-white text-center text-sm font-bold animate-bounce">
+                    Welcome to Cafe made in 2020!
+                  </p>
+                </div>
               ) : (
                 <Button
                   onClick={() => setLocation("/")}
