@@ -305,7 +305,35 @@ export default function Status() {
                   </AlertDialogContent>
                 </AlertDialog>
               ) : isCalled ? (
-                <div className="pt-2">
+                <div className="space-y-4 pt-2">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full bg-white/20 border-white/40 text-white hover:bg-white/30"
+                        data-testid="button-cancel-called"
+                      >
+                        I can't make it
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent data-testid="dialog-cancel-called" className="bg-card/95 backdrop-blur-md border-white/20">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          If you can't make it, we'll give your seat to the next person in line.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Go back</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => cancelMutation.mutate()}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Cancel Spot
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <p className="text-white text-center text-sm font-bold animate-bounce">
                     Welcome to Cafe made in 2020!
                   </p>
