@@ -13,6 +13,7 @@ export interface IStorage {
   getPosition(id: string): Promise<{ position: number; totalWaiting: number } | undefined>;
   getNextPosition(): Promise<number>;
   getAllEntries(): Promise<QueueEntryType[]>;
+  getDetailedAnalytics(period: "day" | "week" | "month"): Promise<any>;
 }
 
 function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
@@ -169,6 +170,50 @@ export class MongoStorage implements IStorage {
       .sort({ position: -1 })
       .exec();
     return lastEntry ? lastEntry.position + 1 : 1;
+  }
+
+  async getDetailedAnalytics(period: "day" | "week" | "month"): Promise<any> {
+    const now = new Date();
+    let startDate = new Date();
+    
+    if (period === "day") startDate.setHours(0, 0, 0, 0);
+    else if (period === "week") startDate.setDate(now.getDate() - 7);
+    else if (period === "month") startDate.setMonth(now.getMonth() - 1);
+
+    const entries = await QueueEntry.find({
+      createdAt: { $gte: startDate }
+    }).exec();
+
+    const statsByDay: Record<string, any> = {};
+
+    entries.forEach(entry => {
+      const day = entry.createdAt.toISOString().split('T')[0];
+      if (!statsByDay[day]) {
+        statsByDay[day] = { date: day, total: 0, accepted: 0, cancelled: 0, waitTimes: [] };
+      }
+      
+      statsByDay[day].total++;
+      if (entry.status === "completed" || entry.status === "called") statsByDay[day].accepted++;
+      if (entry.status === "cancelled") statsByDay[day].cancelled++;
+      
+      if (entry.calledAt) {
+        const waitTime = (new Date(entry.calledAt).getTime() - new Date(entry.createdAt).getTime()) / (1000 * 60);
+        statsByDay[day].waitTimes.push(waitTime);
+      }
+    });
+
+    return Object.values(statsByDay).map(dayStats => {
+      const avgWait = dayStats.waitTimes.length > 0 
+        ? dayStats.waitTimes.reduce((a: number, b: number) => a + b, 0) / dayStats.waitTimes.length 
+        : 0;
+      return {
+        date: dayStats.date,
+        total: dayStats.total,
+        accepted: dayStats.accepted,
+        cancelled: dayStats.cancelled,
+        avgWaitTime: Math.round(avgWait * 10) / 10
+      };
+    }).sort((a, b) => b.date.localeCompare(a.date));
   }
 }
 
