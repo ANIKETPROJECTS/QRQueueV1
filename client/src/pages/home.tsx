@@ -119,7 +119,7 @@ export default function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <header className="py-6 px-4 border-b bg-card/50 backdrop-blur-md relative z-10" data-testid="header">
+      <header className="py-6 px-4 border-b bg-card/20 backdrop-blur-md relative z-10" data-testid="header">
         <motion.div 
           className="max-w-md mx-auto flex items-center justify-center gap-3"
           initial={{ y: -20, opacity: 0 }}
@@ -259,8 +259,8 @@ export default function Home() {
         </Card>
       </main>
 
-      <footer className="py-4 px-4 text-center text-sm text-muted-foreground border-t bg-background/50 backdrop-blur-sm relative z-10 h-14 flex items-center justify-center" data-testid="footer">
-        <p data-testid="text-footer" className="min-h-[1.25rem]">{footerText}<span className="animate-pulse border-r-2 border-primary ml-1" /></p>
+      <footer className="py-4 px-4 text-center text-sm border-t bg-background/20 backdrop-blur-sm relative z-10 h-14 flex items-center justify-center" data-testid="footer">
+        <p data-testid="text-footer" className="min-h-[1.25rem] text-white font-medium drop-shadow-sm">{footerText}<span className="animate-pulse border-r-2 border-white ml-1" /></p>
       </footer>
     </div>
   );
