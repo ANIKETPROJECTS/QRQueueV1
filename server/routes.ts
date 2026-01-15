@@ -47,9 +47,10 @@ export async function registerRoutes(
       
       const existing = await storage.getQueueEntryByPhone(input.phoneNumber);
       if (existing) {
-        return res.status(400).json({
-          message: "You already have an active queue entry",
-          field: "phoneNumber",
+        // Return 200 instead of 400 to signal "Welcome back" to the frontend
+        return res.status(200).json({
+          ...existing,
+          isExisting: true
         });
       }
 

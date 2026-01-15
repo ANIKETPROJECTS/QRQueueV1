@@ -90,11 +90,19 @@ export default function Home() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/queue"] });
-      toast({
-        title: "You're in the queue!",
-        description: `Your position is #${data.position}`,
-      });
-      setLocation(`/status/${data._id}`);
+      
+      if (data.isExisting) {
+        toast({
+          title: `Welcome back, ${data.name}!`,
+          description: `You're still at position #${data.position}`,
+        });
+      } else {
+        toast({
+          title: "You're in the queue!",
+          description: `Your position is #${data.position}`,
+        });
+      }
+      setLocation(`/status/${data._id || data.id}`);
     },
     onError: (error: Error) => {
       toast({
