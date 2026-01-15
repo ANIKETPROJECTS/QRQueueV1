@@ -48,12 +48,14 @@ export class MongoStorage implements IStorage {
   }
 
   async createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType> {
-    // Check if user exists first to reuse the document
-    const existing = await QueueEntry.findOne({ phoneNumber: entry.phoneNumber }).exec();
+    // Check if user exists with BOTH name and phone number
+    const existing = await QueueEntry.findOne({ 
+      phoneNumber: entry.phoneNumber,
+      name: entry.name
+    }).exec();
     
     if (existing) {
       const position = await this.getNextPosition();
-      existing.name = entry.name;
       existing.numberOfPeople = entry.numberOfPeople;
       existing.status = "waiting";
       existing.position = position;

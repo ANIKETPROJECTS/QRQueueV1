@@ -44,23 +44,30 @@ export async function registerRoutes(
   app.post(api.queue.create.path, async (req, res) => {
     try {
       const input = api.queue.create.input.parse(req.body);
-      
       const cleanPhone = input.phoneNumber.trim();
       
-      const existing = await storage.getQueueEntryByPhone(cleanPhone);
-      if (existing && existing.status === "waiting") {
+      // Check for active entry by phone first to prevent multi-queueing
+      const active = await storage.getQueueEntryByPhone(cleanPhone);
+      if (active && active.status === "waiting") {
         return res.status(200).json({
-          ...existing,
+          ...active,
           isExisting: true
         });
       }
 
-      // This will either update existing doc or create new one
+      // Re-use doc only if BOTH name and phone match (for fresh login/re-queueing)
       const entry = await storage.createQueueEntry({
         ...input,
         phoneNumber: cleanPhone
       });
-      res.status(201).json(entry);
+
+      // Check if it was an existing doc that got updated
+      const isReUsed = entry.status === "waiting" && !active;
+      
+      res.status(201).json({
+        ...entry,
+        isReUsed
+      });
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({

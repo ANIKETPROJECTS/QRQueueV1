@@ -91,10 +91,12 @@ export default function Home() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/queue"] });
       
-      if (data.isExisting) {
+      if (data.isExisting || data.isReUsed) {
         toast({
           title: `Welcome back, ${data.name}!`,
-          description: `You're still at position #${data.position}`,
+          description: data.isExisting 
+            ? `You're still at position #${data.position}`
+            : `You've joined the queue at position #${data.position}`,
         });
       } else {
         toast({
