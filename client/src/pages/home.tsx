@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import bgImage from "@assets/image_1768481104099.png";
+import logoCafe from "@assets/logo_cafe_1768483716128.png";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -121,33 +122,24 @@ export default function Home() {
     >
       <header className="py-6 px-4 relative z-10" data-testid="header">
         <motion.div 
-          className="max-w-fit mx-auto flex items-center justify-center gap-3 bg-black/40 backdrop-blur-md p-3 px-6 rounded-xl border border-white/10 shadow-lg"
+          className="max-w-fit mx-auto flex items-center justify-center bg-black/40 backdrop-blur-md p-1 px-1 rounded-full border border-white/10 shadow-lg overflow-hidden"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <motion.div
+          <motion.img
+            src={logoCafe}
+            alt="Cafe made in 2020 Logo"
+            className="w-48 h-auto"
             animate={{ 
-              rotate: [0, 10, -10, 0],
-              scale: [1, 1.1, 1.1, 1]
+              scale: [1, 1.05, 1.05, 1]
             }}
             transition={{ 
               duration: 4, 
               repeat: Infinity,
               ease: "easeInOut" 
             }}
-          >
-            <Coffee className="w-8 h-8 text-[#8B4513]" data-testid="icon-logo" />
-          </motion.div>
-          <motion.h1 
-            className="text-2xl font-bold text-white" 
-            data-testid="text-brand"
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            Cafe made in 2020
-          </motion.h1>
+          />
         </motion.div>
       </header>
 
