@@ -1,38 +1,106 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import QueueEntry, { IQueueEntry } from "./models/QueueEntry";
+import type { InsertQueueEntry, QueueEntry as QueueEntryType } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getQueue(): Promise<QueueEntryType[]>;
+  getQueueEntry(id: string): Promise<QueueEntryType | undefined>;
+  getQueueEntryByPhone(phoneNumber: string): Promise<QueueEntryType | null>;
+  createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType>;
+  cancelQueueEntry(id: string): Promise<QueueEntryType | undefined>;
+  getPosition(id: string): Promise<{ position: number; totalWaiting: number } | undefined>;
+  getNextPosition(): Promise<number>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
+  return {
+    _id: doc._id.toString(),
+    name: doc.name,
+    phoneNumber: doc.phoneNumber,
+    numberOfPeople: doc.numberOfPeople,
+    position: doc.position,
+    status: doc.status,
+    createdAt: doc.createdAt,
+  };
+}
 
-  constructor() {
-    this.users = new Map();
+export class MongoStorage implements IStorage {
+  async getQueue(): Promise<QueueEntryType[]> {
+    const entries = await QueueEntry.find({ status: "waiting" })
+      .sort({ position: 1 })
+      .exec();
+    return entries.map(toQueueEntryType);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getQueueEntry(id: string): Promise<QueueEntryType | undefined> {
+    try {
+      const entry = await QueueEntry.findById(id).exec();
+      return entry ? toQueueEntryType(entry) : undefined;
+    } catch {
+      return undefined;
+    }
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async getQueueEntryByPhone(phoneNumber: string): Promise<QueueEntryType | null> {
+    const entry = await QueueEntry.findOne({
+      phoneNumber,
+      status: "waiting",
+    }).exec();
+    return entry ? toQueueEntryType(entry) : null;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType> {
+    const position = await this.getNextPosition();
+    const newEntry = new QueueEntry({
+      ...entry,
+      position,
+      status: "waiting",
+    });
+    const saved = await newEntry.save();
+    return toQueueEntryType(saved);
+  }
+
+  async cancelQueueEntry(id: string): Promise<QueueEntryType | undefined> {
+    try {
+      const entry = await QueueEntry.findByIdAndUpdate(
+        id,
+        { status: "cancelled" },
+        { new: true }
+      ).exec();
+      return entry ? toQueueEntryType(entry) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async getPosition(id: string): Promise<{ position: number; totalWaiting: number } | undefined> {
+    try {
+      const entry = await QueueEntry.findById(id).exec();
+      if (!entry || entry.status !== "waiting") return undefined;
+
+      const waitingAhead = await QueueEntry.countDocuments({
+        status: "waiting",
+        position: { $lt: entry.position },
+      }).exec();
+
+      const totalWaiting = await QueueEntry.countDocuments({
+        status: "waiting",
+      }).exec();
+
+      return {
+        position: waitingAhead + 1,
+        totalWaiting,
+      };
+    } catch {
+      return undefined;
+    }
+  }
+
+  async getNextPosition(): Promise<number> {
+    const lastEntry = await QueueEntry.findOne()
+      .sort({ position: -1 })
+      .exec();
+    return lastEntry ? lastEntry.position + 1 : 1;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new MongoStorage();
