@@ -130,6 +130,7 @@ export default function Status() {
 
   const isCancelled = entry.status === "cancelled";
   const isCalled = entry.status === "called";
+  const isCompleted = entry.status === "completed";
 
   return (
     <div 
@@ -178,7 +179,7 @@ export default function Status() {
         >
           <Card 
             className={`backdrop-blur-md border-white/20 shadow-2xl transition-all duration-500 ${
-              isCalled ? "bg-green-600/90 ring-4 ring-green-400 ring-offset-4 ring-offset-transparent" : "bg-card/90"
+              isCalled || isCompleted ? "bg-green-600/90 ring-4 ring-green-400 ring-offset-4 ring-offset-transparent" : "bg-card/90"
             }`} 
             data-testid="card-status"
           >
@@ -193,7 +194,7 @@ export default function Status() {
                     Your spot has been removed from the queue
                   </CardDescription>
                 </>
-              ) : isCalled ? (
+              ) : isCalled || isCompleted ? (
                 <>
                   <motion.div 
                     className="w-24 h-24 mx-auto mb-4 rounded-full bg-white flex items-center justify-center shadow-xl" 
@@ -206,9 +207,13 @@ export default function Status() {
                   >
                     <CheckCircle className="w-14 h-14 text-green-600" data-testid="icon-called" />
                   </motion.div>
-                  <CardTitle className="text-3xl text-white font-black mb-2 drop-shadow-lg" data-testid="text-title-called">Your Seat is Ready!</CardTitle>
+                  <CardTitle className="text-3xl text-white font-black mb-2 drop-shadow-lg" data-testid="text-title-called">
+                    {isCompleted ? "Welcome!" : "Your Seat is Ready!"}
+                  </CardTitle>
                   <CardDescription className="text-white text-lg font-medium drop-shadow-md" data-testid="text-desc-called">
-                    Please head to the counter now. We're waiting for you!
+                    {isCompleted 
+                      ? "Welcome to Cafe made in 2020! Enjoy your time with us." 
+                      : "Please head to the counter now. We're waiting for you!"}
                   </CardDescription>
                 </>
               ) : (
@@ -229,35 +234,35 @@ export default function Status() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className={`rounded-lg p-4 space-y-3 transition-colors ${
-                isCalled ? "bg-white/30" : "bg-muted/50"
+                isCalled || isCompleted ? "bg-white/30" : "bg-muted/50"
               }`} data-testid="info-container">
                 <div className="flex items-center gap-3" data-testid="info-party-size">
                   <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
-                    <Users className={`w-4 h-4 ${isCalled ? "text-green-600" : "text-[#8B4513]"}`} />
+                    <Users className={`w-4 h-4 ${isCalled || isCompleted ? "text-green-600" : "text-[#8B4513]"}`} />
                   </div>
                   <div>
-                    <p className={`text-sm ${isCalled ? "text-white/90" : "text-muted-foreground"}`}>Party Size</p>
-                    <p className={`font-bold ${isCalled ? "text-white text-lg" : ""}`} data-testid="text-party-size">
+                    <p className={`text-sm ${isCalled || isCompleted ? "text-white/90" : "text-muted-foreground"}`}>Party Size</p>
+                    <p className={`font-bold ${isCalled || isCompleted ? "text-white text-lg" : ""}`} data-testid="text-party-size">
                       {entry.numberOfPeople} {entry.numberOfPeople === 1 ? "person" : "people"}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3" data-testid="info-status">
                   <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center">
-                    <Clock className={`w-4 h-4 ${isCalled ? "text-green-600" : "text-[#8B4513]"}`} />
+                    <Clock className={`w-4 h-4 ${isCalled || isCompleted ? "text-green-600" : "text-[#8B4513]"}`} />
                   </div>
                   <div>
-                    <p className={`text-sm ${isCalled ? "text-white/90" : "text-muted-foreground"}`}>Status</p>
-                    <p className={`font-bold capitalize flex items-center gap-2 ${isCalled ? "text-white text-lg" : ""}`} data-testid="text-status">
+                    <p className={`text-sm ${isCalled || isCompleted ? "text-white/90" : "text-muted-foreground"}`}>Status</p>
+                    <p className={`font-bold capitalize flex items-center gap-2 ${isCalled || isCompleted ? "text-white text-lg" : ""}`} data-testid="text-status">
                       {isCancelled ? (
                         <>
                           <span className="w-2 h-2 rounded-full bg-destructive" data-testid="status-indicator-cancelled" />
                           Cancelled
                         </>
-                      ) : isCalled ? (
+                      ) : isCalled || isCompleted ? (
                         <>
                           <span className="w-3 h-3 rounded-full bg-white animate-ping" data-testid="status-indicator-called" />
-                          Now Serving!
+                          {isCompleted ? "Served" : "Now Serving!"}
                         </>
                       ) : (
                         <>
@@ -270,7 +275,7 @@ export default function Status() {
                 </div>
               </div>
 
-              {!isCancelled && !isCalled ? (
+              {!isCancelled && !isCalled && !isCompleted ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
@@ -304,36 +309,38 @@ export default function Status() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              ) : isCalled ? (
+              ) : isCalled || isCompleted ? (
                 <div className="space-y-4 pt-2">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full bg-white/20 border-white/40 text-white hover:bg-white/30"
-                        data-testid="button-cancel-called"
-                      >
-                        I can't make it
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent data-testid="dialog-cancel-called" className="bg-card/95 backdrop-blur-md border-white/20">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          If you can't make it, we'll give your seat to the next person in line.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Go back</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => cancelMutation.mutate()}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  {!isCompleted && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full bg-white/20 border-white/40 text-white hover:bg-white/30"
+                          data-testid="button-cancel-called"
                         >
-                          Cancel Spot
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          I can't make it
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent data-testid="dialog-cancel-called" className="bg-card/95 backdrop-blur-md border-white/20">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            If you can't make it, we'll give your seat to the next person in line.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Go back</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => cancelMutation.mutate()}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Cancel Spot
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                   <p className="text-white text-center text-sm font-bold animate-bounce">
                     Welcome to Cafe made in 2020!
                   </p>
