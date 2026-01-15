@@ -121,7 +121,7 @@ export default function Home() {
     >
       <header className="py-6 px-4 relative z-10" data-testid="header">
         <motion.div 
-          className="max-w-fit mx-auto flex items-center justify-center gap-3 bg-card/40 backdrop-blur-md p-3 px-6 rounded-xl border border-white/20 shadow-lg"
+          className="max-w-fit mx-auto flex items-center justify-center gap-3 bg-black/40 backdrop-blur-md p-3 px-6 rounded-xl border border-white/10 shadow-lg"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -137,10 +137,10 @@ export default function Home() {
               ease: "easeInOut" 
             }}
           >
-            <Coffee className="w-8 h-8 text-primary" data-testid="icon-logo" />
+            <Coffee className="w-8 h-8 text-white" data-testid="icon-logo" />
           </motion.div>
           <motion.h1 
-            className="text-2xl font-bold text-foreground" 
+            className="text-2xl font-bold text-white" 
             data-testid="text-brand"
             initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
