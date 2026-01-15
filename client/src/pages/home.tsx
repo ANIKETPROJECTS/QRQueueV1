@@ -27,7 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
-import bgImage from "../../attached_assets/image_1768481104099.png";
+import bgImage from "@assets/image_1768481104099.png";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
