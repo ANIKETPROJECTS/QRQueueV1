@@ -45,16 +45,21 @@ export async function registerRoutes(
     try {
       const input = api.queue.create.input.parse(req.body);
       
-      const existing = await storage.getQueueEntryByPhone(input.phoneNumber);
+      // Standardize phone number for lookup (removing common formatting if any)
+      const cleanPhone = input.phoneNumber.trim();
+      
+      const existing = await storage.getQueueEntryByPhone(cleanPhone);
       if (existing && existing.status === "waiting") {
-        // Return 200 instead of 400 to signal "Welcome back" to the frontend
         return res.status(200).json({
           ...existing,
           isExisting: true
         });
       }
 
-      const entry = await storage.createQueueEntry(input);
+      const entry = await storage.createQueueEntry({
+        ...input,
+        phoneNumber: cleanPhone
+      });
       res.status(201).json(entry);
     } catch (err) {
       if (err instanceof z.ZodError) {
