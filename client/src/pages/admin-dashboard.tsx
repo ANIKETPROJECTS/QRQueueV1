@@ -295,16 +295,23 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-bold text-[#4A2C2A] mb-6">Customer Volume</h3>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={analytics}>
+                      <BarChart data={analytics} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F0F0" />
-                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#8C7A78', fontSize: 12}} />
+                        <XAxis 
+                          dataKey="date" 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{fill: '#8C7A78', fontSize: 12}}
+                          dy={10}
+                        />
                         <YAxis axisLine={false} tickLine={false} tick={{fill: '#8C7A78', fontSize: 12}} />
                         <Tooltip 
+                          cursor={{fill: '#F9F7F5'}}
                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                         />
-                        <Bar dataKey="total" name="Total Customers" fill="#8B4513" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="accepted" name="Accepted" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="cancelled" name="Cancelled" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="total" name="Total" fill="#8B4513" radius={[6, 6, 0, 0]} barSize={40} />
+                        <Bar dataKey="accepted" name="Accepted" fill="#22c55e" radius={[6, 6, 0, 0]} barSize={40} />
+                        <Bar dataKey="cancelled" name="Cancelled" fill="#ef4444" radius={[6, 6, 0, 0]} barSize={40} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
