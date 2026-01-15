@@ -31,7 +31,7 @@ export default function Status() {
   const { data: entry, isLoading: entryLoading } = useQuery<QueueEntry>({
     queryKey: ["/api/queue", id],
     enabled: !!id,
-    refetchInterval: 5000,
+    refetchInterval: 2000, // Faster polling (2 seconds)
   });
 
   const { data: position, isLoading: positionLoading } = useQuery<{
@@ -40,7 +40,7 @@ export default function Status() {
   }>({
     queryKey: ["/api/queue", id, "position"],
     enabled: !!id && entry?.status === "waiting",
-    refetchInterval: 5000,
+    refetchInterval: 2000, // Faster polling (2 seconds)
   });
 
   const cancelMutation = useMutation({

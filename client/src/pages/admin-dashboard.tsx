@@ -20,12 +20,12 @@ export default function AdminDashboard() {
 
   const { data: entries, isLoading } = useQuery<QueueEntry[]>({
     queryKey: ["/api/admin/entries"],
-    refetchInterval: 5000,
+    refetchInterval: 2000, // Faster polling (2 seconds)
   });
 
   const { data: stats } = useQuery<{ totalCustomers: number; totalVisits: number }>({
     queryKey: ["/api/admin/stats"],
-    refetchInterval: 10000,
+    refetchInterval: 2000, // Faster polling (2 seconds)
   });
 
   const callMutation = useMutation({
