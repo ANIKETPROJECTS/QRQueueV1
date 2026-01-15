@@ -110,11 +110,11 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col relative" 
+      className="min-h-screen flex flex-col relative overflow-hidden" 
       data-testid="page-home"
       style={{
         backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
+        backgroundSize: '100% 100%',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
@@ -137,7 +137,7 @@ export default function Home() {
               ease: "easeInOut" 
             }}
           >
-            <Coffee className="w-8 h-8 text-white" data-testid="icon-logo" />
+            <Coffee className="w-8 h-8 text-[#8B4513]" data-testid="icon-logo" />
           </motion.div>
           <motion.h1 
             className="text-2xl font-bold text-white" 
