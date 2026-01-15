@@ -112,10 +112,10 @@ export async function registerRoutes(
     res.json(stats);
   });
 
-  app.get("/api/admin/analytics", async (req, res) => {
-    const period = (req.query.period as "day" | "week" | "month") || "day";
+  app.get("/api/admin/analytics/:period", async (req, res) => {
+    const period = (req.params.period as "day" | "week" | "month") || "day";
     const analytics = await storage.getDetailedAnalytics(period);
-    res.json(analytics);
+    res.json(analytics || []);
   });
 
   app.post("/api/admin/call/:id", async (req, res) => {
