@@ -152,111 +152,122 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <Card className="w-full max-w-md bg-card/90 backdrop-blur-md border-white/20 shadow-2xl" data-testid="card-join-queue">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl" data-testid="text-title">Join the Queue</CardTitle>
-            <CardDescription data-testid="text-description">
-              Fill in your details to reserve your spot
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" data-testid="form-join-queue">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem data-testid="field-name">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your name"
-                            className="pl-10"
-                            data-testid="input-name"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage data-testid="error-name" />
-                    </FormItem>
-                  )}
-                />
+        <motion.div
+          className="w-full max-w-md"
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ 
+            duration: 0.8, 
+            delay: 0.4,
+            ease: [0.16, 1, 0.3, 1] 
+          }}
+        >
+          <Card className="bg-card/90 backdrop-blur-md border-white/20 shadow-2xl" data-testid="card-join-queue">
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl" data-testid="text-title">Join the Queue</CardTitle>
+              <CardDescription data-testid="text-description">
+                Fill in your details to reserve your spot
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5" data-testid="form-join-queue">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem data-testid="field-name">
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Enter your name"
+                              className="pl-10"
+                              data-testid="input-name"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage data-testid="error-name" />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem data-testid="field-phone">
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Enter your phone number"
-                            className="pl-10"
-                            type="tel"
-                            data-testid="input-phone"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage data-testid="error-phone" />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem data-testid="field-phone">
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Enter your phone number"
+                              className="pl-10"
+                              type="tel"
+                              data-testid="input-phone"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage data-testid="error-phone" />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="numberOfPeople"
-                  render={({ field }) => (
-                    <FormItem data-testid="field-people">
-                      <FormLabel>Number of People</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                          <Select
-                            value={String(field.value)}
-                            onValueChange={(val) => field.onChange(Number(val))}
-                          >
-                            <SelectTrigger className="pl-10" data-testid="select-people">
-                              <SelectValue placeholder="Select number of people" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-                                <SelectItem key={num} value={String(num)} data-testid={`option-people-${num}`}>
-                                  {num} {num === 1 ? "person" : "people"}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </FormControl>
-                      <FormMessage data-testid="error-people" />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="numberOfPeople"
+                    render={({ field }) => (
+                      <FormItem data-testid="field-people">
+                        <FormLabel>Number of People</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                            <Select
+                              value={String(field.value)}
+                              onValueChange={(val) => field.onChange(Number(val))}
+                            >
+                              <SelectTrigger className="pl-10" data-testid="select-people">
+                                <SelectValue placeholder="Select number of people" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                                  <SelectItem key={num} value={String(num)} data-testid={`option-people-${num}`}>
+                                    {num} {num === 1 ? "person" : "people"}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </FormControl>
+                        <FormMessage data-testid="error-people" />
+                      </FormItem>
+                    )}
+                  />
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={joinQueue.isPending}
-                  data-testid="button-join-queue"
-                >
-                  {joinQueue.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Joining...
-                    </>
-                  ) : (
-                    "Join Queue"
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#8B4513] hover:bg-[#A0522D] transition-colors"
+                    disabled={joinQueue.isPending}
+                    data-testid="button-join-queue"
+                  >
+                    {joinQueue.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Joining...
+                      </>
+                    ) : (
+                      "Join Queue"
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </motion.div>
       </main>
 
       <footer className="py-8 px-4 text-center text-sm relative z-10 h-20 flex items-center justify-center" data-testid="footer">
