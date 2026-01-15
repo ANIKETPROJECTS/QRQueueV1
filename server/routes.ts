@@ -46,7 +46,7 @@ export async function registerRoutes(
       const input = api.queue.create.input.parse(req.body);
       
       const existing = await storage.getQueueEntryByPhone(input.phoneNumber);
-      if (existing) {
+      if (existing && existing.status === "waiting") {
         // Return 200 instead of 400 to signal "Welcome back" to the frontend
         return res.status(200).json({
           ...existing,

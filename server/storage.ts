@@ -64,8 +64,7 @@ export class MongoStorage implements IStorage {
       const entry = await QueueEntry.findByIdAndUpdate(
         id,
         { 
-          status: "cancelled",
-          position: -1 // Clear position by setting to -1 or similar
+          status: "cancelled"
         },
         { new: true }
       ).exec();
