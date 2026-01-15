@@ -70,7 +70,7 @@ export default function Status() {
         <header className="py-6 px-4 border-b bg-card" data-testid="header">
           <div className="max-w-md mx-auto flex items-center justify-center gap-3">
             <Coffee className="w-8 h-8 text-primary" data-testid="icon-logo" />
-            <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe 2020</h1>
+            <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe made in 2020</h1>
           </div>
         </header>
         <main className="flex-1 flex items-center justify-center">
@@ -86,7 +86,7 @@ export default function Status() {
         <header className="py-6 px-4 border-b bg-card" data-testid="header">
           <div className="max-w-md mx-auto flex items-center justify-center gap-3">
             <Coffee className="w-8 h-8 text-primary" data-testid="icon-logo" />
-            <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe 2020</h1>
+            <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe made in 2020</h1>
           </div>
         </header>
         <main className="flex-1 flex items-center justify-center p-4">
@@ -114,7 +114,7 @@ export default function Status() {
       <header className="py-6 px-4 border-b bg-card" data-testid="header">
         <div className="max-w-md mx-auto flex items-center justify-center gap-3">
           <Coffee className="w-8 h-8 text-primary" data-testid="icon-logo" />
-          <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe 2020</h1>
+          <h1 className="text-2xl font-bold text-foreground" data-testid="text-brand">Cafe made in 2020</h1>
         </div>
       </header>
 
@@ -244,7 +244,7 @@ export default function Status() {
       </main>
 
       <footer className="py-4 px-4 text-center text-sm text-muted-foreground border-t" data-testid="footer">
-        <p data-testid="text-footer">Thank you for visiting Cafe 2020</p>
+        <p data-testid="text-footer">Thank you for visiting Cafe made in 2020</p>
       </footer>
     </div>
   );

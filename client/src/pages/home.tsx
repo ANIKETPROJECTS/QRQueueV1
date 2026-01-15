@@ -43,7 +43,7 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [footerText, setFooterText] = useState("");
-  const fullText = "Thank you for visiting Cafe 2020";
+  const fullText = "Thank you for visiting Cafe made in 2020";
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -146,7 +146,7 @@ export default function Home() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            Cafe 2020
+            Cafe made in 2020
           </motion.h1>
         </motion.div>
       </header>
