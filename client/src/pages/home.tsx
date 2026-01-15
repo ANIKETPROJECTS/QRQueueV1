@@ -5,6 +5,7 @@ import { Coffee, Users, Phone, User, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +42,36 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [footerText, setFooterText] = useState("");
+  const fullText = "Thank you for visiting Cafe 2020";
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    const animate = () => {
+      if (!isDeleting) {
+        setFooterText(fullText.substring(0, charIndex + 1));
+        charIndex++;
+        if (charIndex === fullText.length) {
+          isDeleting = true;
+          timeout = setTimeout(animate, 5000);
+          return;
+        }
+      } else {
+        setFooterText(fullText.substring(0, charIndex - 1));
+        charIndex--;
+        if (charIndex === 0) {
+          isDeleting = false;
+        }
+      }
+      timeout = setTimeout(animate, isDeleting ? 50 : 100);
+    };
+
+    animate();
+    return () => clearTimeout(timeout);
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -88,8 +119,6 @@ export default function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
-      
       <header className="py-6 px-4 border-b bg-card/50 backdrop-blur-md relative z-10" data-testid="header">
         <motion.div 
           className="max-w-md mx-auto flex items-center justify-center gap-3"
@@ -230,8 +259,8 @@ export default function Home() {
         </Card>
       </main>
 
-      <footer className="py-4 px-4 text-center text-sm text-muted-foreground border-t bg-background/50 backdrop-blur-sm relative z-10" data-testid="footer">
-        <p data-testid="text-footer">Thank you for visiting Cafe 2020</p>
+      <footer className="py-4 px-4 text-center text-sm text-muted-foreground border-t bg-background/50 backdrop-blur-sm relative z-10 h-14 flex items-center justify-center" data-testid="footer">
+        <p data-testid="text-footer" className="min-h-[1.25rem]">{footerText}<span className="animate-pulse border-r-2 border-primary ml-1" /></p>
       </footer>
     </div>
   );
