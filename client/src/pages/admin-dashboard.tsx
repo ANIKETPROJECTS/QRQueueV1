@@ -109,9 +109,23 @@ export default function AdminDashboard() {
                           {entry.numberOfPeople} people • {entry.phoneNumber}
                         </div>
                       </div>
-                      <Button onClick={() => callMutation.mutate(entry._id!)} size="sm" className="bg-[#8B4513]">
-                        Call Now
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => callMutation.mutate(entry._id!)} 
+                          size="sm" 
+                          className="bg-[#8B4513]"
+                        >
+                          Call Now
+                        </Button>
+                        <Button 
+                          onClick={() => cancelMutation.mutate(entry._id!)} 
+                          variant="destructive" 
+                          size="icon"
+                          className="h-9 w-9"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
