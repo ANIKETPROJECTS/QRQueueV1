@@ -91,7 +91,11 @@ export default function Home() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/queue"] });
       
-      if (data.isExisting || data.isReUsed) {
+      console.log("Join Queue Success Data:", data);
+      
+      const shouldShowWelcome = data.isExisting === true || data.isReUsed === true;
+      
+      if (shouldShowWelcome) {
         toast({
           title: `Welcome back, ${data.name}!`,
           description: data.isExisting 

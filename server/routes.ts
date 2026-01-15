@@ -51,22 +51,24 @@ export async function registerRoutes(
       if (active && active.status === "waiting") {
         return res.status(200).json({
           ...active,
-          isExisting: true
+          isExisting: true,
+          isReUsed: false
         });
       }
 
       // Re-use doc only if BOTH name and phone match (for fresh login/re-queueing)
-      const entry = await storage.createQueueEntry({
+      const entryResult = await storage.createQueueEntry({
         ...input,
         phoneNumber: cleanPhone
       });
 
       // Check if it was an existing doc that got updated
-      const isReUsed = entry.status === "waiting" && !active;
+      const isReUsed = !entryResult.isNew;
       
       res.status(201).json({
-        ...entry,
-        isReUsed
+        ...entryResult,
+        isExisting: false,
+        isReUsed: isReUsed
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

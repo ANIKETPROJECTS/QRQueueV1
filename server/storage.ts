@@ -47,7 +47,7 @@ export class MongoStorage implements IStorage {
     return entry ? toQueueEntryType(entry) : null;
   }
 
-  async createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType> {
+  async createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType & { isNew: boolean }> {
     // Check if user exists with BOTH name and phone number
     const existing = await QueueEntry.findOne({ 
       phoneNumber: entry.phoneNumber,
@@ -61,7 +61,7 @@ export class MongoStorage implements IStorage {
       existing.position = position;
       existing.createdAt = new Date();
       const saved = await existing.save();
-      return toQueueEntryType(saved);
+      return { ...toQueueEntryType(saved), isNew: false };
     }
 
     const position = await this.getNextPosition();
@@ -71,7 +71,7 @@ export class MongoStorage implements IStorage {
       status: "waiting",
     });
     const saved = await newEntry.save();
-    return toQueueEntryType(saved);
+    return { ...toQueueEntryType(saved), isNew: true };
   }
 
   async cancelQueueEntry(id: string): Promise<QueueEntryType | undefined> {
