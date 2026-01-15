@@ -45,7 +45,6 @@ export async function registerRoutes(
     try {
       const input = api.queue.create.input.parse(req.body);
       
-      // Standardize phone number for lookup (removing common formatting if any)
       const cleanPhone = input.phoneNumber.trim();
       
       const existing = await storage.getQueueEntryByPhone(cleanPhone);
@@ -56,6 +55,7 @@ export async function registerRoutes(
         });
       }
 
+      // This will either update existing doc or create new one
       const entry = await storage.createQueueEntry({
         ...input,
         phoneNumber: cleanPhone
