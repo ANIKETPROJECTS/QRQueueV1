@@ -119,9 +119,9 @@ export default function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <header className="py-6 px-4 border-b bg-card/20 backdrop-blur-md relative z-10" data-testid="header">
+      <header className="py-6 px-4 relative z-10" data-testid="header">
         <motion.div 
-          className="max-w-md mx-auto flex items-center justify-center gap-3"
+          className="max-w-fit mx-auto flex items-center justify-center gap-3 bg-card/40 backdrop-blur-md p-3 px-6 rounded-xl border border-white/20 shadow-lg"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
@@ -152,7 +152,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <Card className="w-full max-w-md" data-testid="card-join-queue">
+        <Card className="w-full max-w-md bg-card/90 backdrop-blur-md border-white/20 shadow-2xl" data-testid="card-join-queue">
           <CardHeader className="text-center">
             <CardTitle className="text-xl" data-testid="text-title">Join the Queue</CardTitle>
             <CardDescription data-testid="text-description">
@@ -259,8 +259,13 @@ export default function Home() {
         </Card>
       </main>
 
-      <footer className="py-4 px-4 text-center text-sm border-t bg-background/20 backdrop-blur-sm relative z-10 h-14 flex items-center justify-center" data-testid="footer">
-        <p data-testid="text-footer" className="min-h-[1.25rem] text-white font-medium drop-shadow-sm">{footerText}<span className="animate-pulse border-r-2 border-white ml-1" /></p>
+      <footer className="py-8 px-4 text-center text-sm relative z-10 h-20 flex items-center justify-center" data-testid="footer">
+        <div className="bg-black/40 backdrop-blur-md p-3 px-6 rounded-full border border-white/10 shadow-lg">
+          <p data-testid="text-footer" className="min-h-[1.25rem] text-white font-medium drop-shadow-sm flex items-center">
+            {footerText}
+            <span className="animate-pulse border-r-2 border-white ml-1 h-4" />
+          </p>
+        </div>
       </footer>
     </div>
   );
