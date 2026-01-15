@@ -11,6 +11,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   await connectDB();
 
+  // Public Routes
   app.get(api.queue.list.path, async (req, res) => {
     try {
       const queue = await storage.getQueue();
@@ -32,21 +33,11 @@ export async function registerRoutes(
     }
   });
 
-  app.get(api.queue.getByPhone.path, async (req, res) => {
-    try {
-      const entry = await storage.getQueueEntryByPhone(req.params.phoneNumber);
-      res.json(entry);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch queue entry" });
-    }
-  });
-
   app.post(api.queue.create.path, async (req, res) => {
     try {
       const input = api.queue.create.input.parse(req.body);
       const cleanPhone = input.phoneNumber.trim();
       
-      // Check for active entry by phone first to prevent multi-queueing
       const active = await storage.getQueueEntryByPhone(cleanPhone);
       if (active && active.status === "waiting") {
         return res.status(200).json({
@@ -56,19 +47,15 @@ export async function registerRoutes(
         });
       }
 
-      // Re-use doc only if BOTH name and phone match (for fresh login/re-queueing)
       const entryResult = await storage.createQueueEntry({
         ...input,
         phoneNumber: cleanPhone
       });
 
-      // Check if it was an existing doc that got updated
-      const isReUsed = !entryResult.isNew;
-      
       res.status(201).json({
         ...entryResult,
         isExisting: false,
-        isReUsed: isReUsed
+        isReUsed: !entryResult.isNew
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -104,6 +91,57 @@ export async function registerRoutes(
       res.status(500).json({ message: "Failed to get position" });
     }
   });
+
+  // Admin Routes (Simplified for Fast Mode)
+  app.post("/api/admin/login", (req, res) => {
+    const { username, password } = req.body;
+    if (username === "admin" && password === "admin123") {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ message: "Invalid credentials" });
+    }
+  });
+
+  app.get("/api/admin/entries", async (req, res) => {
+    const entries = await storage.getAllEntries();
+    res.json(entries);
+  });
+
+  app.get("/api/admin/stats", async (req, res) => {
+    const stats = await storage.getStats();
+    res.json(stats);
+  });
+
+  app.post("/api/admin/call/:id", async (req, res) => {
+    const entry = await storage.callQueueEntry(req.params.id);
+    res.json(entry);
+  });
+
+  app.post("/api/admin/complete/:id", async (req, res) => {
+    const entry = await storage.completeQueueEntry(req.params.id);
+    res.json(entry);
+  });
+
+  // Background job for auto-cancellation (5 min)
+  setInterval(async () => {
+    try {
+      const entries = await storage.getAllEntries();
+      const now = new Date();
+      const fiveMinutes = 5 * 60 * 1000;
+
+      for (const entry of entries) {
+        if (entry.status === "called" && entry.calledAt) {
+          const diff = now.getTime() - new Date(entry.calledAt).getTime();
+          if (diff > fiveMinutes) {
+            console.log(`Auto-cancelling entry ${entry._id} due to timeout`);
+            await storage.cancelQueueEntry(entry._id!);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Auto-cancellation job error:", e);
+    }
+  }, 30000); // Check every 30 seconds
 
   return httpServer;
 }

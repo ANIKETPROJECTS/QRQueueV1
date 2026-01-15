@@ -5,10 +5,14 @@ export interface IStorage {
   getQueue(): Promise<QueueEntryType[]>;
   getQueueEntry(id: string): Promise<QueueEntryType | undefined>;
   getQueueEntryByPhone(phoneNumber: string): Promise<QueueEntryType | null>;
-  createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType>;
+  createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType & { isNew: boolean }>;
   cancelQueueEntry(id: string): Promise<QueueEntryType | undefined>;
+  callQueueEntry(id: string): Promise<QueueEntryType | undefined>;
+  completeQueueEntry(id: string): Promise<QueueEntryType | undefined>;
+  getStats(): Promise<{ totalCustomers: number; totalVisits: number }>;
   getPosition(id: string): Promise<{ position: number; totalWaiting: number } | undefined>;
   getNextPosition(): Promise<number>;
+  getAllEntries(): Promise<QueueEntryType[]>;
 }
 
 function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
@@ -18,8 +22,9 @@ function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
     phoneNumber: doc.phoneNumber,
     numberOfPeople: doc.numberOfPeople,
     position: doc.position,
-    status: doc.status,
+    status: doc.status as "waiting" | "called" | "cancelled" | "completed",
     createdAt: doc.createdAt,
+    calledAt: doc.calledAt,
   };
 }
 
@@ -28,6 +33,11 @@ export class MongoStorage implements IStorage {
     const entries = await QueueEntry.find({ status: "waiting" })
       .sort({ position: 1 })
       .exec();
+    return entries.map(toQueueEntryType);
+  }
+
+  async getAllEntries(): Promise<QueueEntryType[]> {
+    const entries = await QueueEntry.find().sort({ createdAt: -1 }).exec();
     return entries.map(toQueueEntryType);
   }
 
@@ -48,7 +58,6 @@ export class MongoStorage implements IStorage {
   }
 
   async createQueueEntry(entry: InsertQueueEntry): Promise<QueueEntryType & { isNew: boolean }> {
-    // Check if user exists with BOTH name and phone number
     const existing = await QueueEntry.findOne({ 
       phoneNumber: entry.phoneNumber,
       name: entry.name
@@ -60,6 +69,7 @@ export class MongoStorage implements IStorage {
       existing.status = "waiting";
       existing.position = position;
       existing.createdAt = new Date();
+      existing.calledAt = undefined;
       const saved = await existing.save();
       return { ...toQueueEntryType(saved), isNew: false };
     }
@@ -90,6 +100,47 @@ export class MongoStorage implements IStorage {
     }
   }
 
+  async callQueueEntry(id: string): Promise<QueueEntryType | undefined> {
+    try {
+      const entry = await QueueEntry.findByIdAndUpdate(
+        id,
+        { 
+          status: "called",
+          calledAt: new Date()
+        },
+        { new: true }
+      ).exec();
+      return entry ? toQueueEntryType(entry) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async completeQueueEntry(id: string): Promise<QueueEntryType | undefined> {
+    try {
+      const entry = await QueueEntry.findByIdAndUpdate(
+        id,
+        { 
+          status: "completed",
+          position: 0
+        },
+        { new: true }
+      ).exec();
+      return entry ? toQueueEntryType(entry) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async getStats(): Promise<{ totalCustomers: number; totalVisits: number }> {
+    const totalVisits = await QueueEntry.countDocuments().exec();
+    const distinctPhones = await QueueEntry.distinct("phoneNumber").exec();
+    return {
+      totalCustomers: distinctPhones.length,
+      totalVisits
+    };
+  }
+
   async getPosition(id: string): Promise<{ position: number; totalWaiting: number } | undefined> {
     try {
       const entry = await QueueEntry.findById(id).exec();
@@ -114,7 +165,7 @@ export class MongoStorage implements IStorage {
   }
 
   async getNextPosition(): Promise<number> {
-    const lastEntry = await QueueEntry.findOne()
+    const lastEntry = await QueueEntry.findOne({ status: "waiting" })
       .sort({ position: -1 })
       .exec();
     return lastEntry ? lastEntry.position + 1 : 1;

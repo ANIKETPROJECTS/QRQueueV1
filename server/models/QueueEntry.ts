@@ -7,19 +7,25 @@ export interface IQueueEntry extends Document {
   position: number;
   status: "waiting" | "called" | "cancelled" | "completed";
   createdAt: Date;
+  calledAt?: Date;
 }
 
-const QueueEntrySchema = new Schema<IQueueEntry>({
+const QueueEntrySchema: Schema = new Schema({
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true },
-  numberOfPeople: { type: Number, required: true, min: 1, max: 20 },
+  numberOfPeople: { type: Number, required: true },
   position: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["waiting", "called", "cancelled", "completed"],
-    default: "waiting",
+  status: { 
+    type: String, 
+    enum: ["waiting", "called", "cancelled", "completed"], 
+    default: "waiting" 
   },
   createdAt: { type: Date, default: Date.now },
+  calledAt: { type: Date },
 });
+
+// Index for performance
+QueueEntrySchema.index({ phoneNumber: 1 });
+QueueEntrySchema.index({ status: 1 });
 
 export default mongoose.model<IQueueEntry>("QueueEntry", QueueEntrySchema);

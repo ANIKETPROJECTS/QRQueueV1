@@ -7,7 +7,8 @@ export const queueEntrySchema = z.object({
   numberOfPeople: z.number().min(1, "At least 1 person required").max(20, "Maximum 20 people"),
   position: z.number(),
   status: z.enum(["waiting", "called", "cancelled", "completed"]),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
+  calledAt: z.coerce.date().optional(),
 });
 
 export const insertQueueEntrySchema = z.object({
