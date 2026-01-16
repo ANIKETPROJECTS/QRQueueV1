@@ -1,11 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserCheck, Clock, CheckCircle, XCircle, BarChart3, List } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { 
+  Users, 
+  UserCheck, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  BarChart3, 
+  List, 
+  Search,
+  ArrowUpDown,
+  Filter
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import type { QueueEntry } from "@shared/schema";
@@ -15,6 +27,11 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"queue" | "analytics" | "customers">("queue");
   const [period, setPeriod] = useState<"day" | "week" | "month">("day");
+  
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'visitCount', direction: 'desc' });
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     if (localStorage.getItem("adminAuth") !== "true") {
@@ -61,25 +78,71 @@ export default function AdminDashboard() {
   const waitingEntries = entries?.filter(e => e.status === "waiting") || [];
   const calledEntries = entries?.filter(e => e.status === "called") || [];
   
-  const customerStats = entries ? Object.values(entries.reduce((acc: any, curr) => {
-    if (!acc[curr.phoneNumber]) {
-      acc[curr.phoneNumber] = {
-        name: curr.name,
-        phoneNumber: curr.phoneNumber,
-        visitCount: curr.visitCount || 1,
-        lastVisited: curr.createdAt
+  const customerStats = useMemo(() => {
+    if (!entries) return [];
+    
+    const statsMap = entries.reduce((acc: any, curr) => {
+      if (!acc[curr.phoneNumber]) {
+        acc[curr.phoneNumber] = {
+          name: curr.name,
+          phoneNumber: curr.phoneNumber,
+          visitCount: curr.visitCount || 1,
+          lastVisited: curr.createdAt,
+          partySizes: [curr.numberOfPeople]
+        };
+      } else {
+        if ((curr.visitCount || 1) > acc[curr.phoneNumber].visitCount) {
+          acc[curr.phoneNumber].visitCount = curr.visitCount || 1;
+        }
+        if (new Date(curr.createdAt) > new Date(acc[curr.phoneNumber].lastVisited)) {
+          acc[curr.phoneNumber].lastVisited = curr.createdAt;
+        }
+        acc[curr.phoneNumber].partySizes.push(curr.numberOfPeople);
+      }
+      return acc;
+    }, {});
+
+    let results = Object.values(statsMap).map((customer: any) => {
+      const avgPartySize = customer.partySizes.reduce((a: number, b: number) => a + b, 0) / customer.partySizes.length;
+      return {
+        ...customer,
+        avgPartySize: Math.round(avgPartySize * 10) / 10,
+        status: (customer.visitCount || 1) > 3 ? "VIP" : "Regular"
       };
-    } else {
-      // Find the record with the highest visit count or most recent
-      if ((curr.visitCount || 1) > acc[curr.phoneNumber].visitCount) {
-        acc[curr.phoneNumber].visitCount = curr.visitCount || 1;
-      }
-      if (new Date(curr.createdAt) > new Date(acc[curr.phoneNumber].lastVisited)) {
-        acc[curr.phoneNumber].lastVisited = curr.createdAt;
-      }
+    });
+
+    // Apply Search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      results = results.filter((c: any) => 
+        c.name.toLowerCase().includes(query) || 
+        c.phoneNumber.includes(query)
+      );
     }
-    return acc;
-  }, {})).sort((a: any, b: any) => b.visitCount - a.visitCount) : [];
+
+    // Apply Filter
+    if (statusFilter !== "all") {
+      results = results.filter((c: any) => c.status === statusFilter);
+    }
+
+    // Apply Sort
+    results.sort((a: any, b: any) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return results;
+  }, [entries, searchQuery, sortConfig, statusFilter]);
+
+  const handleSort = (key: string) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-[#FDFBF9] p-4 md:p-8">
@@ -295,54 +358,121 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-8"
             >
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h2 className="text-2xl font-bold text-[#4A2C2A]">Customer Insights</h2>
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                  <div className="relative flex-1 md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8C7A78]" />
+                    <Input 
+                      placeholder="Search name or phone..." 
+                      className="pl-9 rounded-xl border-[#D7CCC8] focus:ring-[#8B4513]"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex bg-white border border-[#D7CCC8] rounded-xl p-1 shadow-sm">
+                    <Button 
+                      variant={statusFilter === "all" ? "secondary" : "ghost"} 
+                      size="sm" 
+                      onClick={() => setStatusFilter("all")}
+                      className="rounded-lg text-xs h-8"
+                    >All</Button>
+                    <Button 
+                      variant={statusFilter === "VIP" ? "secondary" : "ghost"} 
+                      size="sm" 
+                      onClick={() => setStatusFilter("VIP")}
+                      className="rounded-lg text-xs h-8"
+                    >VIP</Button>
+                    <Button 
+                      variant={statusFilter === "Regular" ? "secondary" : "ghost"} 
+                      size="sm" 
+                      onClick={() => setStatusFilter("Regular")}
+                      className="rounded-lg text-xs h-8"
+                    >Regular</Button>
+                  </div>
+                </div>
               </div>
 
               <Card className="rounded-3xl border-none shadow-sm bg-white overflow-hidden">
-                <div className="p-6 border-b bg-[#FDFBF9]">
-                  <h3 className="text-lg font-bold text-[#4A2C2A]">Customer Loyalty Directory</h3>
-                  <p className="text-sm text-[#8C7A78]">Ranked by total successful visits</p>
+                <div className="p-6 border-b bg-[#FDFBF9] flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#4A2C2A]">Customer Loyalty Directory</h3>
+                    <p className="text-sm text-[#8C7A78]">Search and analyze your guest behavior</p>
+                  </div>
+                  <Badge variant="outline" className="border-[#D7CCC8] text-[#8B4513] font-bold">
+                    {customerStats.length} Customers
+                  </Badge>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="bg-[#F9F7F5] text-[#8C7A78] text-sm uppercase tracking-wider font-semibold">
+                    <thead className="bg-[#F9F7F5] text-[#8C7A78] text-xs uppercase tracking-wider font-bold">
                       <tr>
-                        <th className="px-6 py-4">Customer Name</th>
-                        <th className="px-6 py-4">Contact info</th>
-                        <th className="px-6 py-4">Total Visits</th>
-                        <th className="px-6 py-4">Last Visit</th>
+                        <th className="px-6 py-4">
+                          <button onClick={() => handleSort('name')} className="flex items-center gap-1 hover:text-[#4A2C2A] transition-colors">
+                            Customer <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </th>
+                        <th className="px-6 py-4">Contact</th>
+                        <th className="px-6 py-4">
+                          <button onClick={() => handleSort('visitCount')} className="flex items-center gap-1 hover:text-[#4A2C2A] transition-colors">
+                            Visits <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </th>
+                        <th className="px-6 py-4">
+                          <button onClick={() => handleSort('avgPartySize')} className="flex items-center gap-1 hover:text-[#4A2C2A] transition-colors">
+                            Avg Party <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </th>
+                        <th className="px-6 py-4">
+                          <button onClick={() => handleSort('lastVisited')} className="flex items-center gap-1 hover:text-[#4A2C2A] transition-colors">
+                            Last Visit <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </th>
                         <th className="px-6 py-4">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F0F0F0]">
-                      {customerStats.map((customer: any) => (
-                        <tr key={customer.phoneNumber} className="hover:bg-[#FDFBF9] transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-[#4A2C2A]">{customer.name}</div>
-                          </td>
-                          <td className="px-6 py-4 text-[#8C7A78]">{customer.phoneNumber}</td>
-                          <td className="px-6 py-4">
-                            <Badge className="bg-[#8B4513] text-white">
-                              {customer.visitCount} visits
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 text-[#8C7A78]">
-                            {new Date(customer.lastVisited).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4">
-                            {customer.visitCount > 3 ? (
-                              <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">
-                                VIP Guest
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="border-[#D7CCC8] text-[#8C7A78]">
-                                Regular
-                              </Badge>
-                            )}
+                      {customerStats.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-12 text-center text-[#8C7A78]">
+                            No customers found matching your criteria
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        customerStats.map((customer: any) => (
+                          <tr key={customer.phoneNumber} className="hover:bg-[#FDFBF9] transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-[#4A2C2A]">{customer.name}</div>
+                            </td>
+                            <td className="px-6 py-4 text-[#8C7A78] font-medium">{customer.phoneNumber}</td>
+                            <td className="px-6 py-4">
+                              <Badge className="bg-[#8B4513] text-white rounded-lg">
+                                {customer.visitCount} visits
+                              </Badge>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2 text-[#4A2C2A] font-semibold">
+                                <Users className="h-3.5 w-3.5 text-[#8C7A78]" />
+                                {customer.avgPartySize}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-[#8C7A78]">
+                              {new Date(customer.lastVisited).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4">
+                              {customer.status === "VIP" ? (
+                                <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50 px-3">
+                                  VIP Guest
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="border-[#D7CCC8] text-[#8C7A78] px-3">
+                                  Regular
+                                </Badge>
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
