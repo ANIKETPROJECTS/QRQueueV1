@@ -26,7 +26,7 @@ function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
     status: doc.status as "waiting" | "called" | "cancelled" | "completed",
     createdAt: doc.createdAt,
     calledAt: doc.calledAt,
-    visitCount: doc.visitCount || 1,
+    visitCount: doc.visitCount || 0,
   };
 }
 
@@ -82,6 +82,7 @@ export class MongoStorage implements IStorage {
       ...entry,
       position,
       status: "waiting",
+      visitCount: 0,
     });
     const saved = await newEntry.save();
     return { ...toQueueEntryType(saved), isNew: true };

@@ -23,7 +23,7 @@ const QueueEntrySchema: Schema = new Schema({
   },
   createdAt: { type: Date, default: Date.now },
   calledAt: { type: Date },
-  visitCount: { type: Number, default: 1 },
+  visitCount: { type: Number, default: 0 },
 });
 
 // Index for performance

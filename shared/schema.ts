@@ -9,7 +9,7 @@ export const queueEntrySchema = z.object({
   status: z.enum(["waiting", "called", "cancelled", "completed"]),
   createdAt: z.coerce.date(),
   calledAt: z.coerce.date().optional(),
-  visitCount: z.number().default(1),
+  visitCount: z.number().default(0),
 });
 
 export const insertQueueEntrySchema = z.object({

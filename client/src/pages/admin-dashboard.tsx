@@ -86,13 +86,13 @@ export default function AdminDashboard() {
         acc[curr.phoneNumber] = {
           name: curr.name,
           phoneNumber: curr.phoneNumber,
-          visitCount: curr.visitCount || 1,
+          visitCount: curr.visitCount || 0,
           lastVisited: curr.createdAt,
           partySizes: [curr.numberOfPeople]
         };
       } else {
-        if ((curr.visitCount || 1) > acc[curr.phoneNumber].visitCount) {
-          acc[curr.phoneNumber].visitCount = curr.visitCount || 1;
+        if ((curr.visitCount || 0) > acc[curr.phoneNumber].visitCount) {
+          acc[curr.phoneNumber].visitCount = curr.visitCount || 0;
         }
         if (new Date(curr.createdAt) > new Date(acc[curr.phoneNumber].lastVisited)) {
           acc[curr.phoneNumber].lastVisited = curr.createdAt;
