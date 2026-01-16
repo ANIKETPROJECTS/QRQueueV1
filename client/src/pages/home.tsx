@@ -243,19 +243,20 @@ export default function Home() {
                               {isCustom ? (
                                 <div className="flex gap-2">
                                   <Input
-                                    type="number"
-                                    min={1}
-                                    max={15}
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
                                     value={field.value}
                                     onChange={(e) => {
-                                      const val = Number(e.target.value);
-                                      if (val > 15) {
+                                      const val = e.target.value.replace(/[^0-9]/g, "");
+                                      const numVal = val === "" ? 0 : Number(val);
+                                      if (numVal > 15) {
                                         field.onChange(15);
                                       } else {
-                                        field.onChange(val);
+                                        field.onChange(numVal);
                                       }
                                     }}
-                                    className="pl-10"
+                                    className="pl-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="Enter count"
                                     data-testid="input-custom-people"
                                   />
