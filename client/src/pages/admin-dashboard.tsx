@@ -287,6 +287,67 @@ export default function AdminDashboard() {
                 </div>
               </section>
             </motion.div>
+          ) : activeTab === "customers" ? (
+            <motion.div 
+              key="customers"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
+            >
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-[#4A2C2A]">Customer Insights</h2>
+              </div>
+
+              <Card className="rounded-3xl border-none shadow-sm bg-white overflow-hidden">
+                <div className="p-6 border-b bg-[#FDFBF9]">
+                  <h3 className="text-lg font-bold text-[#4A2C2A]">Customer Loyalty Directory</h3>
+                  <p className="text-sm text-[#8C7A78]">Ranked by total successful visits</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-[#F9F7F5] text-[#8C7A78] text-sm uppercase tracking-wider font-semibold">
+                      <tr>
+                        <th className="px-6 py-4">Customer Name</th>
+                        <th className="px-6 py-4">Contact info</th>
+                        <th className="px-6 py-4">Total Visits</th>
+                        <th className="px-6 py-4">Last Visit</th>
+                        <th className="px-6 py-4">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#F0F0F0]">
+                      {customerStats.map((customer: any) => (
+                        <tr key={customer.phoneNumber} className="hover:bg-[#FDFBF9] transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-[#4A2C2A]">{customer.name}</div>
+                          </td>
+                          <td className="px-6 py-4 text-[#8C7A78]">{customer.phoneNumber}</td>
+                          <td className="px-6 py-4">
+                            <Badge className="bg-[#8B4513] text-white">
+                              {customer.visitCount} visits
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-[#8C7A78]">
+                            {new Date(customer.lastVisited).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            {customer.visitCount > 3 ? (
+                              <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">
+                                VIP Guest
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="border-[#D7CCC8] text-[#8C7A78]">
+                                Regular
+                              </Badge>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </motion.div>
           ) : (
             <motion.div 
               key="analytics"
