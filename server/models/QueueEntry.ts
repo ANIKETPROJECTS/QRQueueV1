@@ -8,6 +8,7 @@ export interface IQueueEntry extends Document {
   status: "waiting" | "called" | "cancelled" | "completed";
   createdAt: Date;
   calledAt?: Date;
+  visitCount: number;
 }
 
 const QueueEntrySchema: Schema = new Schema({
@@ -22,6 +23,7 @@ const QueueEntrySchema: Schema = new Schema({
   },
   createdAt: { type: Date, default: Date.now },
   calledAt: { type: Date },
+  visitCount: { type: Number, default: 1 },
 });
 
 // Index for performance

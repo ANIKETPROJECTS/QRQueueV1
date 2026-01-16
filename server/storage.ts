@@ -26,6 +26,7 @@ function toQueueEntryType(doc: IQueueEntry): QueueEntryType {
     status: doc.status as "waiting" | "called" | "cancelled" | "completed",
     createdAt: doc.createdAt,
     calledAt: doc.calledAt,
+    visitCount: doc.visitCount || 1,
   };
 }
 
@@ -71,6 +72,7 @@ export class MongoStorage implements IStorage {
       existing.position = position;
       existing.createdAt = new Date();
       existing.calledAt = undefined;
+      // visitCount is incremented only upon successful completion (accepted)
       const saved = await existing.save();
       return { ...toQueueEntryType(saved), isNew: false };
     }
@@ -119,15 +121,15 @@ export class MongoStorage implements IStorage {
 
   async completeQueueEntry(id: string): Promise<QueueEntryType | undefined> {
     try {
-      const entry = await QueueEntry.findByIdAndUpdate(
-        id,
-        { 
-          status: "completed",
-          position: 0
-        },
-        { new: true }
-      ).exec();
-      return entry ? toQueueEntryType(entry) : undefined;
+      const entry = await QueueEntry.findById(id).exec();
+      if (!entry) return undefined;
+
+      entry.status = "completed";
+      entry.position = 0;
+      entry.visitCount = (entry.visitCount || 0) + 1;
+      
+      const saved = await entry.save();
+      return toQueueEntryType(saved);
     } catch {
       return undefined;
     }

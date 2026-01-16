@@ -13,7 +13,7 @@ import type { QueueEntry } from "@shared/schema";
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"queue" | "analytics">("queue");
+  const [activeTab, setActiveTab] = useState<"queue" | "analytics" | "customers">("queue");
   const [period, setPeriod] = useState<"day" | "week" | "month">("day");
 
   useEffect(() => {
@@ -60,6 +60,26 @@ export default function AdminDashboard() {
 
   const waitingEntries = entries?.filter(e => e.status === "waiting") || [];
   const calledEntries = entries?.filter(e => e.status === "called") || [];
+  
+  const customerStats = entries ? Object.values(entries.reduce((acc: any, curr) => {
+    if (!acc[curr.phoneNumber]) {
+      acc[curr.phoneNumber] = {
+        name: curr.name,
+        phoneNumber: curr.phoneNumber,
+        visitCount: curr.visitCount || 1,
+        lastVisited: curr.createdAt
+      };
+    } else {
+      // Find the record with the highest visit count or most recent
+      if ((curr.visitCount || 1) > acc[curr.phoneNumber].visitCount) {
+        acc[curr.phoneNumber].visitCount = curr.visitCount || 1;
+      }
+      if (new Date(curr.createdAt) > new Date(acc[curr.phoneNumber].lastVisited)) {
+        acc[curr.phoneNumber].lastVisited = curr.createdAt;
+      }
+    }
+    return acc;
+  }, {})).sort((a: any, b: any) => b.visitCount - a.visitCount) : [];
 
   return (
     <div className="min-h-screen bg-[#FDFBF9] p-4 md:p-8">
@@ -88,6 +108,15 @@ export default function AdminDashboard() {
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Analytics
+              </Button>
+              <Button 
+                variant={activeTab === "customers" ? "default" : "ghost"}
+                size="sm"
+                className={`rounded-lg ${activeTab === "customers" ? "bg-[#8B4513]" : ""}`}
+                onClick={() => setActiveTab("customers")}
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Customers
               </Button>
             </div>
             <Button variant="outline" className="rounded-xl border-[#D7CCC8]" onClick={() => {
