@@ -144,6 +144,17 @@ export default function AdminDashboard() {
     }));
   };
 
+  const formatWaitTime = (minutes: number) => {
+    if (minutes === 0) return "0s";
+    const totalSeconds = Math.round(minutes * 60);
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    if (mins === 0) return `${secs}s`;
+    if (secs === 0) return `${mins}m`;
+    return `${mins}m ${secs}s`;
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFBF9] p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -547,6 +558,7 @@ export default function AdminDashboard() {
                         <YAxis axisLine={false} tickLine={false} tick={{fill: '#8C7A78', fontSize: 12}} />
                         <Tooltip 
                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                          formatter={(value: number) => [formatWaitTime(value), "Avg Wait"]}
                         />
                         <Line type="monotone" dataKey="avgWaitTime" name="Avg Wait (min)" stroke="#8B4513" strokeWidth={3} dot={{r: 4, fill: '#8B4513', strokeWidth: 2}} />
                       </LineChart>
@@ -582,7 +594,7 @@ export default function AdminDashboard() {
                           <td className="px-6 py-4 text-[#4A2C2A]">{day.total}</td>
                           <td className="px-6 py-4 text-green-600 font-medium">{day.accepted}</td>
                           <td className="px-6 py-4 text-red-500 font-medium">{day.cancelled}</td>
-                          <td className="px-6 py-4 text-[#8B4513]">{day.avgWaitTime}m</td>
+                          <td className="px-6 py-4 text-[#8B4513] font-semibold">{formatWaitTime(day.avgWaitTime)}</td>
                         </tr>
                       ))}
                     </tbody>
