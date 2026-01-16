@@ -213,6 +213,12 @@ export default function Home() {
                               placeholder="Enter your phone number"
                               className="pl-10"
                               type="tel"
+                              maxLength={10}
+                              onKeyPress={(e) => {
+                                if (!/[0-9]/.test(e.key)) {
+                                  e.preventDefault();
+                                }
+                              }}
                               data-testid="input-phone"
                               {...field}
                             />
