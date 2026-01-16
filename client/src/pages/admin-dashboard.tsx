@@ -457,7 +457,7 @@ export default function AdminDashboard() {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-[#8C7A78]">
-                              {new Date(customer.lastVisited).toLocaleDateString()}
+                              {new Date(customer.lastVisited).toLocaleDateString('en-GB')}
                             </td>
                             <td className="px-6 py-4">
                               {customer.status === "VIP" ? (
@@ -573,7 +573,12 @@ export default function AdminDashboard() {
                     <tbody className="divide-y divide-[#F0F0F0]">
                       {analytics?.map((day) => (
                         <tr key={day.date} className="hover:bg-[#FDFBF9] transition-colors">
-                          <td className="px-6 py-4 font-medium text-[#4A2C2A]">{day.date}</td>
+                          <td className="px-6 py-4 font-medium text-[#4A2C2A]">
+                            {(() => {
+                              const [year, month, dayStr] = day.date.split('-');
+                              return `${dayStr}/${month}/${year}`;
+                            })()}
+                          </td>
                           <td className="px-6 py-4 text-[#4A2C2A]">{day.total}</td>
                           <td className="px-6 py-4 text-green-600 font-medium">{day.accepted}</td>
                           <td className="px-6 py-4 text-red-500 font-medium">{day.cancelled}</td>
