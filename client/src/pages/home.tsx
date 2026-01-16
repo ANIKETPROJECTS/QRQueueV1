@@ -247,7 +247,14 @@ export default function Home() {
                                     min={1}
                                     max={15}
                                     value={field.value}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                    onChange={(e) => {
+                                      const val = Number(e.target.value);
+                                      if (val > 15) {
+                                        field.onChange(15);
+                                      } else {
+                                        field.onChange(val);
+                                      }
+                                    }}
                                     className="pl-10"
                                     placeholder="Enter count"
                                     data-testid="input-custom-people"
