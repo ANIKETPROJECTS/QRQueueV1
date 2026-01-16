@@ -34,7 +34,7 @@ import logoCafe from "@assets/logo_cafe_1768483716128.png";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   phoneNumber: z.string().length(10, "Phone number must be exactly 10 digits").regex(/^\d+$/, "Phone number must only contain digits"),
-  numberOfPeople: z.number().min(1).max(20),
+  numberOfPeople: z.number().min(1).max(15),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -245,7 +245,7 @@ export default function Home() {
                                   <Input
                                     type="number"
                                     min={1}
-                                    max={20}
+                                    max={15}
                                     value={field.value}
                                     onChange={(e) => field.onChange(Number(e.target.value))}
                                     className="pl-10"
