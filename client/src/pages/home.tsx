@@ -232,32 +232,71 @@ export default function Home() {
                   <FormField
                     control={form.control}
                     name="numberOfPeople"
-                    render={({ field }) => (
-                      <FormItem data-testid="field-people">
-                        <FormLabel>Number of People</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-                            <Select
-                              value={String(field.value)}
-                              onValueChange={(val) => field.onChange(Number(val))}
-                            >
-                              <SelectTrigger className="pl-10" data-testid="select-people">
-                                <SelectValue placeholder="Select number of people" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
-                                  <SelectItem key={num} value={String(num)} data-testid={`option-people-${num}`}>
-                                    {num} {num === 1 ? "person" : "people"}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </FormControl>
-                        <FormMessage data-testid="error-people" />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const [isCustom, setIsCustom] = useState(field.value > 8);
+                      return (
+                        <FormItem data-testid="field-people">
+                          <FormLabel>Number of People</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+                              {isCustom ? (
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    max={20}
+                                    value={field.value}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                    className="pl-10"
+                                    placeholder="Enter count"
+                                    data-testid="input-custom-people"
+                                  />
+                                  <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => {
+                                      setIsCustom(false);
+                                      field.onChange(1);
+                                    }}
+                                  >
+                                    Reset
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Select
+                                  value={String(field.value)}
+                                  onValueChange={(val) => {
+                                    if (val === "custom") {
+                                      setIsCustom(true);
+                                      field.onChange(9);
+                                    } else {
+                                      field.onChange(Number(val));
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="pl-10" data-testid="select-people">
+                                    <SelectValue placeholder="Select number of people" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Array.from({ length: 8 }, (_, i) => i + 1).map((num) => (
+                                      <SelectItem key={num} value={String(num)} data-testid={`option-people-${num}`}>
+                                        {num} {num === 1 ? "person" : "people"}
+                                      </SelectItem>
+                                    ))}
+                                    <SelectItem value="custom" className="font-semibold text-[#8B4513]" data-testid="option-people-custom">
+                                      Custom number...
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            </div>
+                          </FormControl>
+                          <FormMessage data-testid="error-people" />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <Button
