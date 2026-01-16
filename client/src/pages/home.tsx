@@ -33,7 +33,7 @@ import logoCafe from "@assets/logo_cafe_1768483716128.png";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+  phoneNumber: z.string().length(10, "Phone number must be exactly 10 digits").regex(/^\d+$/, "Phone number must only contain digits"),
   numberOfPeople: z.number().min(1).max(20),
 });
 

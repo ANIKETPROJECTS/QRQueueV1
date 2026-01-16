@@ -13,7 +13,7 @@ export const queueEntrySchema = z.object({
 
 export const insertQueueEntrySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+  phoneNumber: z.string().length(10, "Phone number must be exactly 10 digits").regex(/^\d+$/, "Phone number must only contain digits"),
   numberOfPeople: z.number().min(1, "At least 1 person required").max(20, "Maximum 20 people"),
 });
 
