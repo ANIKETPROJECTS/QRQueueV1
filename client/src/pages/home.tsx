@@ -134,7 +134,7 @@ export default function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
-      <header className="py-6 px-4 relative z-10" data-testid="header">
+      <header className="pt-16 pb-6 px-4 relative z-10 md:pt-6" data-testid="header">
         <motion.div 
           className="max-w-fit mx-auto flex items-center justify-center bg-black/40 backdrop-blur-md p-1 px-1 rounded-full border border-white/10 shadow-lg overflow-hidden"
           initial={{ y: -20, opacity: 0 }}
