@@ -44,7 +44,7 @@ export default function Home() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [footerText, setFooterText] = useState("");
-  const fullText = "Thank you for visiting Cafe made in 2020";
+  const fullText = "Thank you for visiting cafe 2020";
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -143,7 +143,7 @@ export default function Home() {
         >
           <motion.img
             src={logoCafe}
-            alt="Cafe made in 2020 Logo"
+            alt="cafe 2020 Logo"
             className="w-48 h-auto"
             animate={{ 
               scale: [1, 1.05, 1.05, 1]

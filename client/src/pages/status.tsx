@@ -152,7 +152,7 @@ export default function Status() {
         >
           <motion.img
             src={logoCafe}
-            alt="Cafe made in 2020 Logo"
+            alt="cafe 2020 Logo"
             className="w-48 h-auto"
             animate={{ 
               scale: [1, 1.05, 1.05, 1]
@@ -212,7 +212,7 @@ export default function Status() {
                   </CardTitle>
                   <CardDescription className="text-white text-lg font-medium drop-shadow-md" data-testid="text-desc-called">
                     {isCompleted 
-                      ? "Welcome to Cafe made in 2020! Enjoy your time with us." 
+                      ? "Welcome to cafe 2020! Enjoy your time with us." 
                       : "Please head to the counter now. We're waiting for you!"}
                   </CardDescription>
                 </>
@@ -342,7 +342,7 @@ export default function Status() {
                     </AlertDialog>
                   )}
                   <p className="text-white text-center text-sm font-bold animate-bounce">
-                    Welcome to Cafe made in 2020!
+                    Welcome to cafe 2020!
                   </p>
                 </div>
               ) : (
@@ -362,7 +362,7 @@ export default function Status() {
       <footer className="py-8 px-4 text-center text-sm relative z-10 h-20 flex items-center justify-center" data-testid="footer">
         <div className="bg-black/40 backdrop-blur-md p-3 px-6 rounded-full border border-white/10 shadow-lg">
           <p data-testid="text-footer" className="min-h-[1.25rem] text-white font-medium drop-shadow-sm">
-            Thank you for visiting Cafe made in 2020
+            Thank you for visiting cafe 2020
           </p>
         </div>
       </footer>
